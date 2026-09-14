@@ -19,7 +19,7 @@ const config: Phaser.Types.Core.GameConfig = {
       debug: false,
     },
   },
-  scene: [BootScene, MenuScene, ...GAMES.map((g) => g.scene)],
+  scene: [BootScene, MenuScene, ...GAMES.flatMap((g) => g.scenes)],
 };
 
 new Phaser.Game(config);

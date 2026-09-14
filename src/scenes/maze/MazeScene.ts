@@ -1,8 +1,10 @@
 import Phaser from 'phaser';
 import { generateMaze } from './mazeGenerator';
+import { Difficulty, DEFAULT_DIFFICULTY } from './difficulty';
 
 interface MazeInit {
   level?: number;
+  difficulty?: Difficulty;
 }
 
 /**
@@ -12,6 +14,7 @@ interface MazeInit {
  */
 export class MazeScene extends Phaser.Scene {
   private level = 1;
+  private difficulty: Difficulty = DEFAULT_DIFFICULTY;
   private player!: Phaser.Physics.Arcade.Image;
   private playerRadius = 8;
   private walls: Phaser.GameObjects.Rectangle[] = [];
@@ -29,6 +32,7 @@ export class MazeScene extends Phaser.Scene {
 
   init(data: MazeInit): void {
     this.level = data.level ?? 1;
+    this.difficulty = data.difficulty ?? DEFAULT_DIFFICULTY;
     this.walls = [];
     this.started = false;
     this.finished = false;
@@ -39,9 +43,9 @@ export class MazeScene extends Phaser.Scene {
     const { width, height } = this.scale;
     this.add.rectangle(width / 2, height / 2, width, height, 0x0f172a).setDepth(-10);
 
-    // Difficulté croissante : le labyrinthe grandit à chaque niveau.
-    const cellCols = 7 + this.level;
-    const cellRows = 5 + this.level;
+    // Taille de base selon la difficulté, puis agrandissement par niveau.
+    const cellCols = this.difficulty.cellCols + (this.level - 1) * this.difficulty.growth;
+    const cellRows = this.difficulty.cellRows + (this.level - 1) * this.difficulty.growth;
     const maze = generateMaze(cellCols, cellRows);
 
     // Mise en page : on réserve une marge en haut pour le HUD.
@@ -108,7 +112,7 @@ export class MazeScene extends Phaser.Scene {
     this.player = this.physics.add.image(sx, sy, 'player').setDepth(5);
     const body = this.player.body as Phaser.Physics.Arcade.Body;
     body.setCircle(radius);
-    this.maxSpeed = tile * 6;
+    this.maxSpeed = tile * 6 * this.difficulty.speedFactor;
 
     this.physics.add.collider(this.player, this.walls);
     this.physics.add.overlap(this.player, this.exitZone, () => this.win());
@@ -118,7 +122,7 @@ export class MazeScene extends Phaser.Scene {
       .text(pad, 16, '', { fontFamily: 'system-ui', fontSize: '20px', color: '#e2e8f0' })
       .setDepth(10);
     this.add
-      .text(width - pad, 16, 'Échap : menu', {
+      .text(width - pad, 16, 'Échap : difficulté', {
         fontFamily: 'system-ui',
         fontSize: '14px',
         color: '#64748b',
@@ -139,7 +143,7 @@ export class MazeScene extends Phaser.Scene {
       .setOrigin(0.5, 0)
       .setDepth(20);
 
-    this.input.keyboard?.on('keydown-ESC', () => this.scene.start('MenuScene'));
+    this.input.keyboard?.on('keydown-ESC', () => this.scene.start('MazeSetupScene'));
 
     this.updateHud();
   }
@@ -180,7 +184,9 @@ export class MazeScene extends Phaser.Scene {
       .setOrigin(0.5)
       .setDepth(31);
 
-    this.time.delayedCall(1500, () => this.scene.restart({ level: this.level + 1 }));
+    this.time.delayedCall(1500, () =>
+      this.scene.restart({ level: this.level + 1, difficulty: this.difficulty }),
+    );
   }
 
   update(): void {
@@ -220,6 +226,6 @@ export class MazeScene extends Phaser.Scene {
 
   private updateHud(): void {
     const t = this.started ? ((this.time.now - this.startTime) / 1000).toFixed(1) : '0.0';
-    this.hud.setText(`Niveau ${this.level}     ⏱ ${t}s`);
+    this.hud.setText(`${this.difficulty.label}  ·  Niveau ${this.level}     ⏱ ${t}s`);
   }
 }

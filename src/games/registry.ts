@@ -1,12 +1,16 @@
 import Phaser from 'phaser';
+import { MazeSetupScene } from '../scenes/maze/MazeSetupScene';
 import { MazeScene } from '../scenes/maze/MazeScene';
+
+type SceneClass = new (...args: never[]) => Phaser.Scene;
 
 /**
  * Registre central des minigames.
  *
  * Pour ajouter un jeu :
- *   1. Créer une nouvelle Scene Phaser dans src/scenes/<jeu>/.
- *   2. Ajouter une entrée ici.
+ *   1. Créer une (ou plusieurs) Scene Phaser dans src/scenes/<jeu>/.
+ *   2. Ajouter une entrée ici : `sceneKey` est la scène lancée par le menu,
+ *      `scenes` liste toutes les scènes du jeu à enregistrer auprès de Phaser.
  * Le menu et l'enregistrement des scènes se mettent à jour automatiquement.
  */
 export interface MiniGame {
@@ -14,7 +18,7 @@ export interface MiniGame {
   title: string;
   description: string;
   sceneKey: string;
-  scene: new (...args: never[]) => Phaser.Scene;
+  scenes: SceneClass[];
   color: number;
 }
 
@@ -23,8 +27,8 @@ export const GAMES: MiniGame[] = [
     key: 'maze',
     title: 'Labyrinthe',
     description: 'Guide la bille à la souris jusqu’à la sortie ★ sans te perdre.',
-    sceneKey: 'MazeScene',
-    scene: MazeScene,
+    sceneKey: 'MazeSetupScene',
+    scenes: [MazeSetupScene, MazeScene],
     color: 0x4ade80,
   },
 ];
