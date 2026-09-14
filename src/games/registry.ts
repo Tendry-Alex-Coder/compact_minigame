@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { MazeSetupScene } from '../scenes/maze/MazeSetupScene';
 import { MazeScene } from '../scenes/maze/MazeScene';
+import { GoldMinerScene } from '../scenes/goldminer/GoldMinerScene';
 
 type SceneClass = new (...args: never[]) => Phaser.Scene;
 
@@ -30,5 +31,13 @@ export const GAMES: MiniGame[] = [
     sceneKey: 'MazeSetupScene',
     scenes: [MazeSetupScene, MazeScene],
     color: 0x4ade80,
+  },
+  {
+    key: 'goldminer',
+    title: 'Gold Miner',
+    description: 'Lâche le grappin au bon moment pour attraper l’or et les diamants.',
+    sceneKey: 'GoldMinerScene',
+    scenes: [GoldMinerScene],
+    color: 0xfbbf24,
   },
 ];
