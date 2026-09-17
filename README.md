@@ -5,6 +5,7 @@ Collection de minigames web à jouer quand on s'ennuie.
 Jeux disponibles :
 - **Labyrinthe** — généré procéduralement, dirigé à la souris, avec réglage de difficulté.
 - **Gold Miner** — un grappin qui balance ; lâche-le pour attraper l'or et les diamants avant la fin du chrono.
+- **Tetris** — empile les blocs et complète des lignes. Modes Facile / Intermédiaire / Expert / Infini.
 
 ## Stack
 
@@ -45,6 +46,18 @@ npm run preview  # sert le build de production
    au niveau suivant. Sinon, c'est perdu.
 5. **Échap** : revenir au menu.
 
+### Tetris
+
+1. Depuis le menu, clique sur **Tetris**, puis choisis un **mode** :
+   - **Facile / Intermédiaire / Expert** : vitesse de chute constante (lente → rapide).
+   - **Infini** : la vitesse augmente sans fin toutes les 10 lignes, et le score
+     est multiplié par le niveau.
+2. Contrôles : **← →** déplacer, **↑** tourner, **↓** descendre plus vite,
+   **Espace** chute instantanée, **Échap** menu.
+3. Complète des lignes pour marquer : **100 / 300 / 500 / 800** points selon le
+   nombre de lignes effacées d'un seul coup.
+4. La partie se termine quand la pile atteint le haut.
+
 ## Architecture
 
 ```
@@ -60,8 +73,13 @@ src/
 │   │   ├── MazeScene.ts       # le jeu de labyrinthe
 │   │   ├── mazeGenerator.ts   # génération (recursive backtracker)
 │   │   └── difficulty.ts      # presets de difficulté
-│   └── goldminer/
-│       └── GoldMinerScene.ts  # le jeu Gold Miner
+│   ├── goldminer/
+│   │   └── GoldMinerScene.ts  # le jeu Gold Miner
+│   └── tetris/
+│       ├── TetrisSetupScene.ts # choix du mode
+│       ├── TetrisScene.ts      # le jeu Tetris
+│       ├── tetrominoes.ts      # pièces, couleurs, rotation, sac
+│       └── modes.ts            # modes de difficulté
 └── style.css
 ```
 

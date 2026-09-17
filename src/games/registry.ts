@@ -2,6 +2,8 @@ import Phaser from 'phaser';
 import { MazeSetupScene } from '../scenes/maze/MazeSetupScene';
 import { MazeScene } from '../scenes/maze/MazeScene';
 import { GoldMinerScene } from '../scenes/goldminer/GoldMinerScene';
+import { TetrisSetupScene } from '../scenes/tetris/TetrisSetupScene';
+import { TetrisScene } from '../scenes/tetris/TetrisScene';
 
 type SceneClass = new (...args: never[]) => Phaser.Scene;
 
@@ -39,5 +41,13 @@ export const GAMES: MiniGame[] = [
     sceneKey: 'GoldMinerScene',
     scenes: [GoldMinerScene],
     color: 0xfbbf24,
+  },
+  {
+    key: 'tetris',
+    title: 'Tetris',
+    description: 'Empile les blocs et complète des lignes. Modes Facile à Infini.',
+    sceneKey: 'TetrisSetupScene',
+    scenes: [TetrisSetupScene, TetrisScene],
+    color: 0xa855f7,
   },
 ];
