@@ -7,12 +7,17 @@ interface GoldMinerInit {
 
 type HookState = 'swing' | 'extend' | 'retract' | 'ended';
 
+/** Visuel d'un objet : une forme simple ou un container (bombe). */
+type CollectibleVisual = Phaser.GameObjects.GameObject &
+  Phaser.GameObjects.Components.Transform &
+  Phaser.GameObjects.Components.Depth;
+
 interface Collectible {
   kind: string;
   value: number;
   weight: number; // plus lourd = remontée plus lente
   radius: number; // rayon de collision
-  shape: Phaser.GameObjects.Shape;
+  shape: CollectibleVisual;
 }
 
 /**
@@ -127,6 +132,14 @@ export class GoldMinerScene extends Phaser.Scene {
       })
       .setOrigin(1, 0)
       .setDepth(20);
+    this.add
+      .text(width - pad, 64, '💣 Évite les bombes : −250 pts', {
+        fontFamily: 'system-ui',
+        fontSize: '13px',
+        color: '#fca5a5',
+      })
+      .setOrigin(1, 0)
+      .setDepth(20);
 
     // Entrées.
     this.input.on('pointerdown', () => this.onDrop());
@@ -201,6 +214,34 @@ export class GoldMinerScene extends Phaser.Scene {
       }
       if (!placed) break; // plus de place
     }
+
+    // Bombes (pièges) : nombre croissant avec le niveau.
+    const bombCount = Math.min(2 + Math.floor((this.level - 1) * 0.7), 6);
+    const bombRadius = 16;
+    for (let i = 0; i < bombCount; i++) {
+      for (let attempt = 0; attempt < 40; attempt++) {
+        const x = Phaser.Math.Between(minX, maxX);
+        const y = Phaser.Math.Between(minY, maxY);
+        const clash = this.collectibles.some(
+          (c) => Phaser.Math.Distance.Between(x, y, c.shape.x, c.shape.y) < c.radius + bombRadius + 12,
+        );
+        if (clash) continue;
+        const shape = this.createBombVisual(x, y);
+        this.collectibles.push({ kind: 'bomb', value: -250, weight: 1, radius: bombRadius, shape });
+        break;
+      }
+    }
+  }
+
+  /** Dessine une bombe (sphère noire, reflet, mèche et étincelle). */
+  private createBombVisual(x: number, y: number): Phaser.GameObjects.Container {
+    const body = this.add.circle(0, 0, 15, 0x111827).setStrokeStyle(3, 0xef4444);
+    const shine = this.add.circle(-5, -5, 4, 0x374151);
+    const fuse = this.add.rectangle(7, -14, 3, 9, 0x9a3412).setAngle(20);
+    const spark = this.add.circle(9, -19, 3.5, 0xf59e0b).setStrokeStyle(2, 0xfde68a);
+    const container = this.add.container(x, y, [body, shine, fuse, spark]);
+    container.setDepth(3);
+    return container;
   }
 
   private onDrop(): void {
@@ -233,9 +274,14 @@ export class GoldMinerScene extends Phaser.Scene {
 
   private finalizeGrab(): void {
     if (this.grabbed) {
-      this.score += this.grabbed.value;
-      this.collectibles = this.collectibles.filter((c) => c !== this.grabbed);
-      this.grabbed.shape.destroy();
+      const g = this.grabbed;
+      // Le score ne descend jamais sous 0 (les bombes ont une valeur négative).
+      this.score = Math.max(0, this.score + g.value);
+      this.collectibles = this.collectibles.filter((c) => c !== g);
+      if (g.kind === 'bomb') {
+        this.explode(g.shape.x, g.shape.y);
+      }
+      g.shape.destroy();
       this.grabbed = null;
       if (this.collectibles.length === 0) {
         this.endLevel();
@@ -243,6 +289,32 @@ export class GoldMinerScene extends Phaser.Scene {
       }
     }
     this.state = 'swing';
+  }
+
+  /** Effet d'explosion d'une bombe : secousse + flash. */
+  private explode(x: number, y: number): void {
+    this.cameras.main.shake(260, 0.012);
+
+    const blast = this.add.circle(x, y, 12, 0xef4444, 0.9).setDepth(50);
+    this.tweens.add({
+      targets: blast,
+      scale: 6,
+      alpha: 0,
+      duration: 320,
+      ease: 'Cubic.easeOut',
+      onComplete: () => blast.destroy(),
+    });
+
+    const { width, height } = this.scale;
+    const overlay = this.add
+      .rectangle(width / 2, height / 2, width, height, 0xef4444, 0.28)
+      .setDepth(49);
+    this.tweens.add({
+      targets: overlay,
+      alpha: 0,
+      duration: 260,
+      onComplete: () => overlay.destroy(),
+    });
   }
 
   private endLevel(): void {
