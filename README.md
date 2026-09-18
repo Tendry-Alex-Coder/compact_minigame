@@ -6,6 +6,7 @@ Jeux disponibles :
 - **Labyrinthe** — généré procéduralement, dirigé à la souris, avec réglage de difficulté.
 - **Gold Miner** — un grappin qui balance ; lâche-le pour attraper l'or et les diamants avant la fin du chrono.
 - **Tetris** — empile les blocs et complète des lignes. Modes Facile / Intermédiaire / Expert / Infini.
+- **Memory** — retrouve les paires de tuiles identiques. Le niveau = le nombre de tuiles (12 → 36).
 
 ## Stack
 
@@ -42,9 +43,11 @@ npm run preview  # sert le build de production
 2. Le grappin oscille tout seul. **Clic / Espace / Bas** : le lâcher.
 3. Il attrape le premier objet touché et le remonte — plus c'est **lourd**, plus
    c'est **lent**. Or 🟡, diamants 🔷 (précieux), pierres ⚫ (lourdes, peu payantes).
-4. Atteins l'**objectif** de score avant la fin du **chrono** (60 s) pour passer
+4. Attention aux **bombes** 💣 (pièges) : les attraper fait **perdre 250 points**
+   (avec explosion), et il y en a de plus en plus aux niveaux élevés.
+5. Atteins l'**objectif** de score avant la fin du **chrono** (60 s) pour passer
    au niveau suivant. Sinon, c'est perdu.
-5. **Échap** : revenir au menu.
+6. **Échap** : revenir au menu.
 
 ### Tetris
 
@@ -57,6 +60,17 @@ npm run preview  # sert le build de production
 3. Complète des lignes pour marquer : **100 / 300 / 500 / 800** points selon le
    nombre de lignes effacées d'un seul coup.
 4. La partie se termine quand la pile atteint le haut.
+
+### Memory
+
+1. Depuis le menu, clique sur **Memory**, puis choisis le **nombre de tuiles**
+   (12 / 16 / 24 / 36 — c'est le niveau).
+2. Clique une tuile pour la retourner, puis une seconde.
+3. Deux motifs **identiques** → la paire reste découverte (en vert). Sinon, les
+   deux tuiles se retournent.
+4. Trouve toutes les paires. Le nombre de **coups** et le **temps** sont comptés,
+   et on enchaîne automatiquement vers la grille plus grande.
+5. **Échap** : revenir à l'écran de sélection.
 
 ## Architecture
 
@@ -75,11 +89,15 @@ src/
 │   │   └── difficulty.ts      # presets de difficulté
 │   ├── goldminer/
 │   │   └── GoldMinerScene.ts  # le jeu Gold Miner
-│   └── tetris/
-│       ├── TetrisSetupScene.ts # choix du mode
-│       ├── TetrisScene.ts      # le jeu Tetris
-│       ├── tetrominoes.ts      # pièces, couleurs, rotation, sac
-│       └── modes.ts            # modes de difficulté
+│   ├── tetris/
+│   │   ├── TetrisSetupScene.ts # choix du mode
+│   │   ├── TetrisScene.ts      # le jeu Tetris
+│   │   ├── tetrominoes.ts      # pièces, couleurs, rotation, sac
+│   │   └── modes.ts            # modes de difficulté
+│   └── memory/
+│       ├── MemorySetupScene.ts # choix du nombre de tuiles
+│       ├── MemoryScene.ts      # le jeu Memory
+│       └── memoryLevels.ts     # niveaux (tailles) + motifs
 └── style.css
 ```
 

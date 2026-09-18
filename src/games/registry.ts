@@ -4,6 +4,8 @@ import { MazeScene } from '../scenes/maze/MazeScene';
 import { GoldMinerScene } from '../scenes/goldminer/GoldMinerScene';
 import { TetrisSetupScene } from '../scenes/tetris/TetrisSetupScene';
 import { TetrisScene } from '../scenes/tetris/TetrisScene';
+import { MemorySetupScene } from '../scenes/memory/MemorySetupScene';
+import { MemoryScene } from '../scenes/memory/MemoryScene';
 
 type SceneClass = new (...args: never[]) => Phaser.Scene;
 
@@ -49,5 +51,13 @@ export const GAMES: MiniGame[] = [
     sceneKey: 'TetrisSetupScene',
     scenes: [TetrisSetupScene, TetrisScene],
     color: 0xa855f7,
+  },
+  {
+    key: 'memory',
+    title: 'Memory',
+    description: 'Retrouve les paires de tuiles identiques. Plus de tuiles = plus dur.',
+    sceneKey: 'MemorySetupScene',
+    scenes: [MemorySetupScene, MemoryScene],
+    color: 0x38bdf8,
   },
 ];
