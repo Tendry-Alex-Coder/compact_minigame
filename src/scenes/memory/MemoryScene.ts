@@ -37,13 +37,14 @@ export class MemoryScene extends Phaser.Scene {
   private totalPairs = 0;
 
   private startTime = 0;
-  private state: 'playing' | 'won' = 'playing';
+  private state: 'preview' | 'playing' | 'won' = 'preview';
   private isLast = false;
   private finalDone = false;
 
   private infoText!: Phaser.GameObjects.Text;
   private statsText!: Phaser.GameObjects.Text;
   private timeText!: Phaser.GameObjects.Text;
+  private previewBanner?: Phaser.GameObjects.Text;
 
   constructor() {
     super('MemoryScene');
@@ -57,8 +58,9 @@ export class MemoryScene extends Phaser.Scene {
     this.lock = false;
     this.moves = 0;
     this.matchedPairs = 0;
-    this.state = 'playing';
+    this.state = 'preview';
     this.finalDone = false;
+    this.previewBanner = undefined;
     this.isLast = this.levelIndex === MEMORY_LEVELS.length - 1;
   }
 
@@ -131,6 +133,54 @@ export class MemoryScene extends Phaser.Scene {
       if (this.state === 'won' && this.finalDone) this.scene.start('MemorySetupScene');
     });
 
+    this.updateHud();
+    this.startPreview();
+  }
+
+  /** Phase de mémorisation : montre toutes les tuiles quelques secondes. */
+  private startPreview(): void {
+    const { width } = this.scale;
+    const tiles = this.level.cols * this.level.rows;
+    const previewSeconds = tiles <= 16 ? 3 : tiles <= 24 ? 4 : 5;
+
+    // Révèle toutes les tuiles.
+    for (const t of this.tiles) {
+      t.back.setFillStyle(UP_COLOR).setStrokeStyle(2, DOWN_STROKE);
+      t.label.setText(t.symbol);
+    }
+
+    let remaining = previewSeconds;
+    this.previewBanner = this.add
+      .text(width / 2, 22, '', {
+        fontFamily: 'system-ui',
+        fontSize: '18px',
+        color: '#fde68a',
+        backgroundColor: '#1e293bcc',
+        padding: { x: 14, y: 7 },
+      })
+      .setOrigin(0.5, 0)
+      .setDepth(30);
+    const paint = () => this.previewBanner?.setText(`Mémorise les paires !   ${remaining}`);
+    paint();
+
+    this.time.addEvent({
+      delay: 1000,
+      repeat: previewSeconds - 1,
+      callback: () => {
+        remaining--;
+        paint();
+      },
+    });
+
+    this.time.delayedCall(previewSeconds * 1000, () => this.startPlay());
+  }
+
+  /** Fin de la mémorisation : retourne tout et lance la partie. */
+  private startPlay(): void {
+    this.previewBanner?.destroy();
+    this.previewBanner = undefined;
+    for (const t of this.tiles) this.hide(t);
+    this.state = 'playing';
     this.startTime = this.time.now;
     this.updateHud();
   }

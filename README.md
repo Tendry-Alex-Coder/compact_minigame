@@ -65,12 +65,14 @@ npm run preview  # sert le build de production
 
 1. Depuis le menu, clique sur **Memory**, puis choisis le **nombre de tuiles**
    (12 / 16 / 24 / 36 — c'est le niveau).
-2. Clique une tuile pour la retourner, puis une seconde.
-3. Deux motifs **identiques** → la paire reste découverte (en vert). Sinon, les
+2. Au départ, **toutes les tuiles sont montrées quelques secondes** (« Mémorise ! »)
+   avec un compte à rebours, puis elles se retournent et le chrono démarre.
+3. Clique une tuile pour la retourner, puis une seconde.
+4. Deux motifs **identiques** → la paire reste découverte (en vert). Sinon, les
    deux tuiles se retournent.
-4. Trouve toutes les paires. Le nombre de **coups** et le **temps** sont comptés,
+5. Trouve toutes les paires. Le nombre de **coups** et le **temps** sont comptés,
    et on enchaîne automatiquement vers la grille plus grande.
-5. **Échap** : revenir à l'écran de sélection.
+6. **Échap** : revenir à l'écran de sélection.
 
 ## Architecture
 
