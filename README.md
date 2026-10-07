@@ -85,7 +85,8 @@ npm run preview  # sert le build de production
    blocs d'**acier** sont indestructibles.
 5. Tu as **3 vies** (invulnérabilité courte après un tir reçu). Vide une vague
    pour passer à la **suivante**, plus nombreuse et plus rapide.
-6. **Échap** : revenir au menu.
+6. Le bouton **⟳ Reset** (en haut à droite) relance la partie à la vague 1.
+7. **Échap** : revenir au menu.
 
 ## Architecture
 

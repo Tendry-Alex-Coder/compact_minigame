@@ -130,16 +130,16 @@ export class TankScene extends Phaser.Scene {
     // HUD.
     const pad = 16;
     this.scoreText = this.add
-      .text(pad, 14, '', { fontFamily: 'system-ui', fontSize: '20px', color: '#fbbf24' })
-      .setDepth(20);
-    this.waveText = this.add
-      .text(width / 2, 14, '', { fontFamily: 'system-ui', fontSize: '20px', color: '#e2e8f0' })
-      .setOrigin(0.5, 0)
+      .text(pad, 12, '', { fontFamily: 'system-ui', fontSize: '20px', color: '#fbbf24' })
       .setDepth(20);
     this.statusText = this.add
-      .text(width - pad, 14, '', { fontFamily: 'system-ui', fontSize: '20px', color: '#e2e8f0' })
-      .setOrigin(1, 0)
+      .text(pad, 38, '', { fontFamily: 'system-ui', fontSize: '15px', color: '#94a3b8' })
       .setDepth(20);
+    this.waveText = this.add
+      .text(width / 2, 16, '', { fontFamily: 'system-ui', fontSize: '20px', color: '#e2e8f0' })
+      .setOrigin(0.5, 0)
+      .setDepth(20);
+    this.makeResetButton(width - pad, 28);
     this.add
       .text(width / 2, height - 16, 'Flèches / ZQSD : bouger — Espace : tirer — Échap : menu', {
         fontFamily: 'system-ui',
@@ -263,18 +263,44 @@ export class TankScene extends Phaser.Scene {
 
   private spawnWave(wave: number): void {
     const count = Math.min(3 + (wave - 1), 6);
+    const placed: { x: number; y: number }[] = [];
     for (let i = 0; i < count; i++) {
-      const x = this.originX + (this.arenaW * (i + 1)) / (count + 1);
-      const y = this.originY + TILE * 0.7;
-      const enemy = this.enemies.create(x, y, 'tankE') as Phaser.Physics.Arcade.Image;
+      const pos =
+        this.randomSpawn(placed) ?? {
+          x: this.originX + (this.arenaW * (i + 1)) / (count + 1),
+          y: this.originY + TILE * 0.7,
+        };
+      placed.push(pos);
+
+      const enemy = this.enemies.create(pos.x, pos.y, 'tankE') as Phaser.Physics.Arcade.Image;
       (enemy.body as Phaser.Physics.Arcade.Body).setSize(TANK - 8, TANK - 8, true);
       enemy.setCollideWorldBounds(true);
       enemy.setDepth(3);
-      enemy.setData('dir', 'down');
+      const dir = Phaser.Utils.Array.GetRandom(DIRS);
+      enemy.setData('dir', dir);
       enemy.setData('nextTurn', 0);
       enemy.setData('nextShot', this.time.now + Phaser.Math.Between(600, 1800));
-      enemy.setAngle(FACES.down.angle);
+      enemy.setAngle(FACES[dir].angle);
     }
+  }
+
+  /** Cherche une case aléatoire libre : hors des murs, loin du joueur et des autres tanks. */
+  private randomSpawn(placed: { x: number; y: number }[]): { x: number; y: number } | null {
+    const walls = this.walls.getChildren() as Phaser.Physics.Arcade.Image[];
+    for (let attempt = 0; attempt < 80; attempt++) {
+      const c = Phaser.Math.Between(0, this.cols - 1);
+      const r = Phaser.Math.Between(0, this.rows - 1);
+      const { x, y } = this.tileCenter(c, r);
+
+      if (Phaser.Math.Distance.Between(x, y, this.player.x, this.player.y) < TILE * 4) continue;
+      if (walls.some((w) => w.active && Phaser.Math.Distance.Between(x, y, w.x, w.y) < TILE * 0.9)) {
+        continue;
+      }
+      if (placed.some((p) => Phaser.Math.Distance.Between(x, y, p.x, p.y) < TILE * 1.3)) continue;
+
+      return { x, y };
+    }
+    return null;
   }
 
   private fire(
@@ -387,6 +413,23 @@ export class TankScene extends Phaser.Scene {
       duration: 500,
       onComplete: () => banner.destroy(),
     });
+  }
+
+  /** Bouton « Reset » arcade (relance la partie à la vague 1). */
+  private makeResetButton(rightX: number, centerY: number): void {
+    const w = 104;
+    const h = 32;
+    const accent = 0xf87171;
+    const bg = this.add.rectangle(0, 0, w, h, 0x2a1420).setStrokeStyle(2, accent);
+    const label = this.add
+      .text(0, 0, '⟳ Reset', { fontFamily: 'system-ui', fontSize: '15px', color: '#fecaca' })
+      .setOrigin(0.5);
+    const container = this.add.container(rightX - w / 2, centerY, [bg, label]).setDepth(21);
+    bg.setInteractive({ useHandCursor: true });
+    bg.on('pointerover', () => bg.setFillStyle(0x3b1d2a));
+    bg.on('pointerout', () => bg.setFillStyle(0x2a1420));
+    bg.on('pointerdown', () => this.scene.restart());
+    void container;
   }
 
   private gameOver(): void {
