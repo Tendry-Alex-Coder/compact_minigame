@@ -7,6 +7,7 @@ Jeux disponibles :
 - **Gold Miner** — un grappin qui balance ; lâche-le pour attraper l'or et les diamants avant la fin du chrono.
 - **Tetris** — empile les blocs et complète des lignes. Modes Facile / Intermédiaire / Expert / Infini.
 - **Memory** — retrouve les paires de tuiles identiques. Le niveau = le nombre de tuiles (12 → 36).
+- **Tank Battle** — détruis les bots ennemis dans une arène à murs destructibles (façon Battle City).
 
 ## Stack
 
@@ -74,6 +75,18 @@ npm run preview  # sert le build de production
    et on enchaîne automatiquement vers la grille plus grande.
 6. **Échap** : revenir à l'écran de sélection.
 
+### Tank Battle
+
+1. Depuis le menu, clique sur **Tank Battle**.
+2. Contrôles : **flèches** ou **ZQSD** pour bouger, **Espace** pour tirer.
+3. Détruis tous les **tanks ennemis** (bots qui se déplacent et tirent). Chaque
+   ennemi détruit rapporte **100 points**.
+4. Les murs de **briques** 🧱 sont **destructibles** (les tirs les cassent) ; les
+   blocs d'**acier** sont indestructibles.
+5. Tu as **3 vies** (invulnérabilité courte après un tir reçu). Vide une vague
+   pour passer à la **suivante**, plus nombreuse et plus rapide.
+6. **Échap** : revenir au menu.
+
 ## Architecture
 
 ```
@@ -96,10 +109,12 @@ src/
 │   │   ├── TetrisScene.ts      # le jeu Tetris
 │   │   ├── tetrominoes.ts      # pièces, couleurs, rotation, sac
 │   │   └── modes.ts            # modes de difficulté
-│   └── memory/
-│       ├── MemorySetupScene.ts # choix du nombre de tuiles
-│       ├── MemoryScene.ts      # le jeu Memory
-│       └── memoryLevels.ts     # niveaux (tailles) + motifs
+│   ├── memory/
+│   │   ├── MemorySetupScene.ts # choix du nombre de tuiles
+│   │   ├── MemoryScene.ts      # le jeu Memory
+│   │   └── memoryLevels.ts     # niveaux (tailles) + motifs
+│   └── tank/
+│       └── TankScene.ts        # le jeu Tank Battle
 └── style.css
 ```
 

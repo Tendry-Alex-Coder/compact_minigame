@@ -6,6 +6,7 @@ import { TetrisSetupScene } from '../scenes/tetris/TetrisSetupScene';
 import { TetrisScene } from '../scenes/tetris/TetrisScene';
 import { MemorySetupScene } from '../scenes/memory/MemorySetupScene';
 import { MemoryScene } from '../scenes/memory/MemoryScene';
+import { TankScene } from '../scenes/tank/TankScene';
 
 type SceneClass = new (...args: never[]) => Phaser.Scene;
 
@@ -59,5 +60,13 @@ export const GAMES: MiniGame[] = [
     sceneKey: 'MemorySetupScene',
     scenes: [MemorySetupScene, MemoryScene],
     color: 0x38bdf8,
+  },
+  {
+    key: 'tank',
+    title: 'Tank Battle',
+    description: 'Détruis les tanks ennemis. Les murs de briques sont destructibles.',
+    sceneKey: 'TankScene',
+    scenes: [TankScene],
+    color: 0xf87171,
   },
 ];
