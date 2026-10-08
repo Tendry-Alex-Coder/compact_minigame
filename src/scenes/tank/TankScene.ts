@@ -344,9 +344,11 @@ export class TankScene extends Phaser.Scene {
     }
   };
 
-  private onBulletPlayer: Phaser.Types.Physics.Arcade.ArcadePhysicsCallback = (bulletObj) => {
-    const bullet = bulletObj as Phaser.Physics.Arcade.Image;
-    if (!bullet.active) return;
+  private onBulletPlayer: Phaser.Types.Physics.Arcade.ArcadePhysicsCallback = (a, b) => {
+    // Pour un overlap groupe-vs-sprite, Phaser peut inverser l'ordre des
+    // arguments : on récupère le projectile (celui qui n'est pas le joueur).
+    const bullet = (a === this.player ? b : a) as Phaser.Physics.Arcade.Image;
+    if (!bullet || !bullet.active) return;
     bullet.destroy();
     if (this.time.now < this.invulnUntil || this.state !== 'playing') return;
     this.hitPlayer();
